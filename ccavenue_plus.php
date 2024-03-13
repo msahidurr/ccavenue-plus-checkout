@@ -77,10 +77,10 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
 
         // Set rules
         $rules = [
-            'client_id' => [
+            'merchant_id' => [
                 'valid' => [
                     'rule' => [[$this, 'validateConnection'], $meta['client_secret'], $meta['sandbox']],
-                    'message' => Language::_('CCAvenuePlus.!error.client_id.valid', true)
+                    'message' => Language::_('CCAvenuePlus.!error.merchant_id.valid', true)
                 ]
             ],
             'client_secret' => [
@@ -125,7 +125,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
      *
      * @param array $contact_info An array of contact info including:
      *  - id The contact ID
-     *  - client_id The ID of the client this contact belongs to
+     *  - merchant_id The ID of the client this contact belongs to
      *  - user_id The user ID this contact belongs to (if any)
      *  - contact_type The type of contact
      *  - contact_type_id The ID of the contact type
@@ -185,7 +185,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
         $company = $this->Companies->get(Configure::get('Blesta.company_id'));
 
         // Initialize API
-        $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
+        $api = $this->getApi($this->meta['merchant_id'], $this->meta['client_secret'], $this->meta['sandbox']);
         $orders = new CCAvenuePlusCheckoutOrders($api);
 
         // Generate order
@@ -199,7 +199,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
                         'value' => $amount
                     ],
                     'reference_id' => $this->serializeInvoices($invoice_amounts),
-                    'custom_id' => $contact_info['client_id'] ?? null
+                    'custom_id' => $contact_info['merchant_id'] ?? null
                 ]
 
             ],
@@ -223,7 +223,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
             }
         }
 
-        $this->view->set('client_id', $this->meta['client_id']);
+        $this->view->set('merchant_id', $this->meta['merchant_id']);
         $this->view->set('post_to', $post_to);
 
         return $this->view->fetch();
@@ -236,7 +236,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
      * @param array $get The GET data for this request
      * @param array $post The POST data for this request
      * @return array An array of transaction data, sets any errors using Input if the data fails to validate
-     *  - client_id The ID of the client that attempted the payment
+     *  - merchant_id The ID of the client that attempted the payment
      *  - amount The amount of the payment
      *  - currency The currency of the payment
      *  - invoices An array of invoices and the amount the payment should be applied to (if any) including:
@@ -251,7 +251,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     public function validate(array $get, array $post)
     {
         // Initialize API
-        $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
+        $api = $this->getApi($this->meta['merchant_id'], $this->meta['client_secret'], $this->meta['sandbox']);
         $payments = new CCAvenuePlusCheckoutPayments($api);
 
         // Fetch webhook payload
@@ -283,7 +283,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
             }
 
             return [
-                'client_id' => $webhook->resource->purchase_units[0]->custom_id ?? null,
+                'merchant_id' => $webhook->resource->purchase_units[0]->custom_id ?? null,
                 'amount' => $webhook->resource->purchase_units[0]->amount->value ?? null,
                 'currency' => $webhook->resource->purchase_units[0]->amount->currency_code ?? null,
                 'invoices' => $this->unserializeInvoices($webhook->resource->purchase_units[0]->reference_id ?? ''),
@@ -347,7 +347,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
         }
 
         return [
-            'client_id' => $transaction->custom_id ?? null,
+            'merchant_id' => $transaction->custom_id ?? null,
             'amount' => $payment->amount->value ?? null,
             'currency' => $payment->amount->currency_code ?? null,
             'invoices' => $this->unserializeInvoices($transaction->reference_id ?? ''),
@@ -365,7 +365,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
      * @param array $get The GET data for this request
      * @param array $post The POST data for this request
      * @return array An array of transaction data, may set errors using Input if the data appears invalid
-     *  - client_id The ID of the client that attempted the payment
+     *  - merchant_id The ID of the client that attempted the payment
      *  - amount The amount of the payment
      *  - currency The currency of the payment
      *  - invoices An array of invoices and the amount the payment should be applied to (if any) including:
@@ -378,7 +378,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     public function success(array $get, array $post)
     {
         // Initialize API
-        $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
+        $api = $this->getApi($this->meta['merchant_id'], $this->meta['client_secret'], $this->meta['sandbox']);
         $orders = new CCAvenuePlusCheckoutOrders($api);
 
         $this->log('success', json_encode($get), 'output', !empty($get));
@@ -396,7 +396,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
         }
 
         $params = [
-            'client_id' => $transaction->custom_id ?? null,
+            'merchant_id' => $transaction->custom_id ?? null,
             'amount' => $transaction->amount->value ?? null,
             'currency' => $transaction->amount->currency_code ?? null,
             'invoices' => $this->unserializeInvoices($transaction->reference_id ?? ''),
@@ -425,7 +425,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     public function refund($reference_id, $transaction_id, $amount, $notes = null)
     {
         // Initialize API
-        $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
+        $api = $this->getApi($this->meta['merchant_id'], $this->meta['client_secret'], $this->meta['sandbox']);
         $payments = new CCAvenuePlusCheckoutPayments($api);
 
         $this->log('getpayment', json_encode(compact('reference_id', 'transaction_id')), 'input', !empty($get));
@@ -482,7 +482,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     public function void($reference_id, $transaction_id, $notes = null)
     {
         // Initialize API
-        $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
+        $api = $this->getApi($this->meta['merchant_id'], $this->meta['client_secret'], $this->meta['sandbox']);
         $payments = new CCAvenuePlusCheckoutPayments($api);
 
         $this->log('void', json_encode(compact('reference_id', 'transaction_id')), 'output', !empty($get));
@@ -558,30 +558,30 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     /**
      * Loads the given API if not already loaded
      *
-     * @param string $client_id The client ID of CCAvenue Checkout
+     * @param string $merchant_id The client ID of CCAvenue Checkout
      * @param string $client_secret The client secret key
      * @param string $sandbox Whether or not to use the sandbox environment
      */
-    private function getApi(string $client_id, string $client_secret, $sandbox = 'false')
+    private function getApi(string $merchant_id, string $client_secret, $sandbox = 'false')
     {
         $environment = ($sandbox == 'false' ? 'live' : 'sandbox');
 
-        return new CCAvenuePlusCheckoutApi($client_id, $client_secret, $environment);
+        return new CCAvenuePlusCheckoutApi($merchant_id, $client_secret, $environment);
     }
 
     /**
      * Validates if the provided API Key is valid
      *
-     * @param string $client_id The client ID of CCAvenue Checkout
+     * @param string $merchant_id The client ID of CCAvenue Checkout
      * @param string $client_secret The client secret key
      * @param string $sandbox Whether or not to use the sandbox environment
      * @return bool True if the API Key is valid, false otherwise
      */
-    public function validateConnection($client_id, $client_secret, $sandbox = 'false')
+    public function validateConnection($merchant_id, $client_secret, $sandbox = 'false')
     {
         try {
             // Initialize API
-            $api = $this->getApi($client_id, $client_secret, $sandbox);
+            $api = $this->getApi($merchant_id, $client_secret, $sandbox);
             $orders = new CCAvenuePlusCheckoutOrders($api);
 
             $params = [

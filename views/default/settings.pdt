@@ -2,8 +2,8 @@
     <ul>
         <li>
             <?php
-            $this->Form->label($this->_('CCAvenuePlus.meta.client_id', true), 'client_id');
-            $this->Form->fieldText('client_id', ($meta['client_id'] ?? null), ['id' => 'client_id', 'class' => 'block']);
+            $this->Form->label($this->_('CCAvenuePlus.meta.merchant_id', true), 'merchant_id');
+            $this->Form->fieldText('merchant_id', ($meta['merchant_id'] ?? null), ['id' => 'merchant_id', 'class' => 'block']);
             ?>
         </li>
         <li>

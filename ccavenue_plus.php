@@ -80,14 +80,14 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
             'client_id' => [
                 'valid' => [
                     'rule' => [[$this, 'validateConnection'], $meta['client_secret'], $meta['sandbox']],
-                    'message' => Language::_('PaypalCheckout.!error.client_id.valid', true)
+                    'message' => Language::_('CCAvenuePlus.!error.client_id.valid', true)
                 ]
             ],
             'client_secret' => [
                 'valid' => [
                     'rule' => 'isEmpty',
                     'negate' => true,
-                    'message' => Language::_('PaypalCheckout.!error.client_secret.valid', true)
+                    'message' => Language::_('CCAvenuePlus.!error.client_secret.valid', true)
                 ]
             ]
         ];
@@ -252,7 +252,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     {
         // Initialize API
         $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
-        $payments = new PaypalCheckoutPayments($api);
+        $payments = new CCAvenuePlusCheckoutPayments($api);
 
         // Fetch webhook payload
         $payload = file_get_contents('php://input');
@@ -262,7 +262,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
         $events = ['CHECKOUT.ORDER.APPROVED', 'PAYMENT.CAPTURE.COMPLETED'];
         if (!in_array($webhook->event_type ?? '', $events)) {
             $this->Input->setErrors([
-                'event' => ['unsupported' => Language::_('PaypalCheckout.!error.event.unsupported', true)]
+                'event' => ['unsupported' => Language::_('CCAvenuePlus.!error.event.unsupported', true)]
             ]);
             return;
         }
@@ -312,7 +312,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
 
         if (empty($transaction)) {
             $this->Input->setErrors([
-                'transaction' => ['missing' => Language::_('PaypalCheckout.!error.transaction.missing', true)]
+                'transaction' => ['missing' => Language::_('CCAvenuePlus.!error.transaction.missing', true)]
             ]);
             return;
         }
@@ -426,7 +426,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     {
         // Initialize API
         $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
-        $payments = new PaypalCheckoutPayments($api);
+        $payments = new CCAvenuePlusCheckoutPayments($api);
 
         $this->log('getpayment', json_encode(compact('reference_id', 'transaction_id')), 'input', !empty($get));
 
@@ -483,7 +483,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     {
         // Initialize API
         $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
-        $payments = new PaypalCheckoutPayments($api);
+        $payments = new CCAvenuePlusCheckoutPayments($api);
 
         $this->log('void', json_encode(compact('reference_id', 'transaction_id')), 'output', !empty($get));
 

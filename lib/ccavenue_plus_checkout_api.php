@@ -94,7 +94,7 @@ class CCAvenuePlusCheckoutApi
     }
 
     /**
-     * Send an API request to PaypalCheckout
+     * Send an API request to CCAvenuePlus
      *
      * @param string $route The path to the API method
      * @param array $body The data to be sent

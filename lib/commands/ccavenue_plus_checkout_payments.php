@@ -1,12 +1,8 @@
 <?php
 /**
- * PayPal Checkout Payments Management
- *
- * @copyright Copyright (c) 2023, Phillips Data, Inc.
- * @license http://opensource.org/licenses/mit-license.php MIT License
- * @package paypal_checkout.commands
+ * CCAvenue Checkout Payments Management
  */
-class PaypalCheckoutPayments
+class CCAvenuePlusCheckoutPayments
 {
     /**
      * @var CCAvenuePlusCheckoutApi

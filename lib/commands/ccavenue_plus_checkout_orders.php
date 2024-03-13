@@ -9,16 +9,16 @@
 class CCAvenuePlusCheckoutOrders
 {
     /**
-     * @var PaypalCheckoutApi
+     * @var CCAvenuePlusCheckoutApi
      */
     private $api;
 
     /**
      * Sets the API to use for communication
      *
-     * @param PaypalCheckoutApi $api The API to use for communication
+     * @param CCAvenuePlusCheckoutApi $api The API to use for communication
      */
-    public function __construct(PaypalCheckoutApi $api)
+    public function __construct(CCAvenuePlusCheckoutApi $api)
     {
         $this->api = $api;
     }

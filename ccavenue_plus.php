@@ -566,7 +566,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     {
         $environment = ($sandbox == 'false' ? 'live' : 'sandbox');
 
-        return new PaypalCheckoutApi($client_id, $client_secret, $environment);
+        return new CCAvenuePlusCheckoutApi($client_id, $client_secret, $environment);
     }
 
     /**

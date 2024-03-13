@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SE
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @package paypal_checkout.commands
  */
-class PaypalCheckoutApi
+class CCAvenuePlusCheckoutApi
 {
     // Load traits
     use Container;

@@ -1,0 +1,13 @@
+{
+	"version": "1.0.4",
+	"name": "CCAvenuePlus.name",
+	"description": "CCAvenuePlus.description",
+	"authors": [
+        {
+            "name": "msahidurr",
+            "url": "https://msahidurr.com"
+        }
+    ],
+	"currencies": ["EUR", "GBP", "INR", "SGD", "USD"],
+	"signup_url": "https://dashboard.ccavenue.com/web/registration.do?command=navigateSchemeForm"
+}

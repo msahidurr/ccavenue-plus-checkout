@@ -1,0 +1,15 @@
+{
+    "name": "blesta/ccavenue_plus",
+    "description": "ccavenue plus",
+    "license": "proprietary",
+    "type": "blesta-gateway-nonmerchant",
+    "require": {
+        "blesta/composer-installer": "~1.0"
+    },
+    "authors": [
+        {
+            "name": "msahidurr",
+            "homepage": "https://msahidurr.com"
+        }
+    ]
+}

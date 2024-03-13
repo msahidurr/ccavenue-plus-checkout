@@ -9,14 +9,14 @@ $lang['CCAvenuePlus.description'] = 'With a simple, single integration you can a
 
 // Errors
 $lang['CCAvenue_Plus.!error.merchant_id.valid'] = 'Merchant ID invalid.';
-$lang['CCAvenue_Plus.!error.client_secret.valid'] = 'Client Secret invalid.';
+$lang['CCAvenue_Plus.!error.access_code.valid'] = 'Access Code invalid.';
 $lang['CCAvenue_Plus.!error.event.unsupported'] = 'Unsupported event type.';
 $lang['CCAvenue_Plus.!error.transaction.missing'] = 'No transaction found.';
 
 
 // Settings
 $lang['CCAvenue_Plus.meta.merchant_id'] = 'Merchant ID';
-$lang['CCAvenue_Plus.meta.client_secret'] = 'Client Secret';
+$lang['CCAvenue_Plus.meta.access_code'] = 'Access Code';
 $lang['CCAvenue_Plus.meta.sandbox'] = 'Sandbox';
 
 $lang['CCAvenue_Plus.webhook'] = 'CCAvenuePlus Webhook';

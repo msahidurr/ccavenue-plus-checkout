@@ -8,8 +8,8 @@
         </li>
         <li>
             <?php
-            $this->Form->label($this->_('CCAvenuePlus.meta.client_secret', true), 'client_secret');
-            $this->Form->fieldText('client_secret', ($meta['client_secret'] ?? null), ['id' => 'client_secret', 'class' => 'block']);
+            $this->Form->label($this->_('CCAvenuePlus.meta.access_code', true), 'access_code');
+            $this->Form->fieldText('access_code', ($meta['access_code'] ?? null), ['id' => 'access_code', 'class' => 'block']);
             ?>
         </li>
         <li>

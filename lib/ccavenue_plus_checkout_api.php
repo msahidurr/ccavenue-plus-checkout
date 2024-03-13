@@ -34,7 +34,7 @@ class CCAvenuePlusCheckoutApi
     /**
      * @var string The client secret used for OAuth authentication
      */
-    private $client_secret;
+    private $access_code;
 
     /**
      * @var string The API environment, it could be live or sandbox
@@ -49,10 +49,10 @@ class CCAvenuePlusCheckoutApi
     /**
      * Initializes the request parameter
      */
-    public function __construct(string $merchant_id, string $client_secret, string $environment = 'sandbox')
+    public function __construct(string $merchant_id, string $access_code, string $environment = 'sandbox')
     {
         $this->merchant_id = $merchant_id;
-        $this->client_secret = $client_secret;
+        $this->access_code = $access_code;
         $this->environment = $environment;
 
         // Authenticate to CCAvenue API
@@ -72,7 +72,7 @@ class CCAvenuePlusCheckoutApi
     {
         $permissions = ['grant_type' => 'client_credentials'];
         $headers = [
-            'Authorization: Basic ' . base64_encode($this->merchant_id . ':' . $this->client_secret),
+            'Authorization: Basic ' . base64_encode($this->merchant_id . ':' . $this->access_code),
             'Content-Type: application/x-www-form-urlencoded'
         ];
         $session = $this->apiRequest('/v1/oauth2/token', $permissions, 'POST', $headers);

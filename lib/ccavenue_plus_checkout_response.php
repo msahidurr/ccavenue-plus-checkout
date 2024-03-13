@@ -6,7 +6,7 @@
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @package paypal_checkout.commands
  */
-class PaypalCheckoutResponse
+class CCAvenuePlusCheckoutResponse
 {
     private $status;
     private $raw;
@@ -15,7 +15,7 @@ class PaypalCheckoutResponse
     private $headers;
 
     /**
-     * PaypalCheckoutResponse constructor.
+     * CCAvenuePlusCheckoutResponse constructor.
      *
      * @param array $api_response The API response
      */

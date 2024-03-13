@@ -29,9 +29,9 @@ class PaypalCheckoutPayments
      * @param array $vars An array of input params including:
      *
      *  - id The ID of the captured payment for which to show details
-     * @return PaypalCheckoutResponse The response object
+     * @return CCAvenuePlusCheckoutResponse The response object
      */
-    public function get(array $vars) : PaypalCheckoutResponse
+    public function get(array $vars) : CCAvenuePlusCheckoutResponse
     {
         return $this->api->apiRequest('/v2/payments/captures/' . ($vars['id'] ?? ''));
     }
@@ -45,10 +45,10 @@ class PaypalCheckoutPayments
      *  - note_to_payer The reason for the refund
      *  - amount The amount to refund
      *  - payment_source The payment source definition
-     * @return PaypalCheckoutResponse The response object
+     * @return  The response object
      * @see https://developer.paypal.com/docs/api/payments/v2/#captures_refund
      */
-    public function refund(array $vars) : PaypalCheckoutResponse
+    public function refund(array $vars) : CCAvenuePlusCheckoutResponse
     {
         $params = $vars;
         unset($params['capture_id']);
@@ -66,10 +66,10 @@ class PaypalCheckoutPayments
      * @param array $vars An array of input params including:
      *
      *  - authorization_id The PayPal-generated ID for the captured payment to refund
-     * @return PaypalCheckoutResponse The response object
+     * @return CCAvenuePlusCheckoutResponse The response object
      * @see https://developer.paypal.com/docs/api/payments/v2/#captures_refund
      */
-    public function void(array $vars) : PaypalCheckoutResponse
+    public function void(array $vars) : CCAvenuePlusCheckoutResponse
     {
         return $this->api->apiRequest(
             '/v2/payments/authorization_id/' . ($vars['authorization_id'] ?? '') . '/void',
@@ -88,9 +88,9 @@ class PaypalCheckoutPayments
      *  - amount The amount to capture
      *  - final_capture Indicates whether you can make additional captures against the authorized payment.
      *      Set to true if you do not intend to capture additional payments against the authorization.
-     * @return PaypalCheckoutResponse The response object
+     * @return CCAvenuePlusCheckoutResponse The response object
      */
-    public function capture(array $vars) : PaypalCheckoutResponse
+    public function capture(array $vars) : CCAvenuePlusCheckoutResponse
     {
         $params = $vars;
         unset($params['id']);

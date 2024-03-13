@@ -100,7 +100,7 @@ class CCAvenuePlusCheckoutApi
      * @param array $body The data to be sent
      * @param string $method Data transfer method (POST, GET, PUT, DELETE)
      * @param array $headers Overrides the default headers for this request
-     * @return PaypalCheckoutResponse
+     * @return CCAvenuePlusCheckoutResponse
      */
     public function apiRequest($route, array $body = [], $method = 'GET', array $headers = [])
     {
@@ -160,14 +160,14 @@ class CCAvenuePlusCheckoutApi
                 'status' => 500
             ];
 
-            return new PaypalCheckoutResponse(['content' => json_encode($error), 'headers' => []]);
+            return new CCAvenuePlusCheckoutResponse(['content' => json_encode($error), 'headers' => []]);
         }
         curl_close($curl);
 
         $data = explode("\n", $result);
 
         // Return request response
-        return new PaypalCheckoutResponse([
+        return new CCAvenuePlusCheckoutResponse([
             'content' => $data[count($data) - 1],
             'headers' => array_splice($data, 0, count($data) - 1)]
         );

@@ -6,7 +6,7 @@
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @package paypal_checkout.commands
  */
-class PaypalCheckoutOrders
+class CCAvenuePlusCheckoutOrders
 {
     /**
      * @var PaypalCheckoutApi

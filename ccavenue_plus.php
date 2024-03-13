@@ -186,7 +186,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
 
         // Initialize API
         $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
-        $orders = new PaypalCheckoutOrders($api);
+        $orders = new CCAvenuePlusCheckoutOrders($api);
 
         // Generate order
         $params = [
@@ -271,7 +271,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
 
         // Capture payment
         if ($webhook->event_type == 'CHECKOUT.ORDER.APPROVED') {
-            $orders = new PaypalCheckoutOrders($api);
+            $orders = new CCAvenuePlusCheckoutOrders($api);
             $response = $orders->capture(['id' => $webhook->resource->id]);
 
             $this->log('capture', json_encode($response->response()), 'output', empty($response->errors()));
@@ -302,7 +302,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
         $order = (object) [];
         $transaction = (object) [];
         if (isset($payment->supplementary_data->related_ids->order_id)) {
-            $orders = new PaypalCheckoutOrders($api);
+            $orders = new CCAvenuePlusCheckoutOrders($api);
             $order_response = $orders->get(['id' => $payment->supplementary_data->related_ids->order_id]) ?? (object) [];
             $order = $order_response->response();
             $transaction = $order->purchase_units[0] ?? (object) [];
@@ -379,7 +379,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     {
         // Initialize API
         $api = $this->getApi($this->meta['client_id'], $this->meta['client_secret'], $this->meta['sandbox']);
-        $orders = new PaypalCheckoutOrders($api);
+        $orders = new CCAvenuePlusCheckoutOrders($api);
 
         $this->log('success', json_encode($get), 'output', !empty($get));
 
@@ -582,7 +582,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
         try {
             // Initialize API
             $api = $this->getApi($client_id, $client_secret, $sandbox);
-            $orders = new PaypalCheckoutOrders($api);
+            $orders = new CCAvenuePlusCheckoutOrders($api);
 
             $params = [
                 'purchase_units' => [

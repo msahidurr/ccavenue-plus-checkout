@@ -89,7 +89,14 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
                     'negate' => true,
                     'message' => Language::_('CCAvenuePlus.!error.access_code.valid', true)
                 ]
-            ]
+            ],
+            'working_key' => [
+                'valid' => [
+                    'rule' => 'isEmpty',
+                    'negate' => true,
+                    'message' => Language::_('CCAvenuePlus.!error.working_key.valid', true)
+                ]
+            ],
         ];
         $this->Input->setRules($rules);
 
@@ -107,7 +114,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
      */
     public function encryptableFields()
     {
-        return ['access_code'];
+        return ['access_code', 'working_key'];
     }
 
     /**
@@ -562,11 +569,11 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
      * @param string $access_code The client secret key
      * @param string $sandbox Whether or not to use the sandbox environment
      */
-    private function getApi(string $merchant_id, string $access_code, $sandbox = 'false')
+    private function getApi(string $merchant_id, string $access_code, string $working_key, $sandbox = 'false')
     {
         $environment = ($sandbox == 'false' ? 'live' : 'sandbox');
 
-        return new CCAvenuePlusCheckoutApi($merchant_id, $access_code, $environment);
+        return new CCAvenuePlusCheckoutApi($merchant_id, $access_code, $working_key, $environment);
     }
 
     /**

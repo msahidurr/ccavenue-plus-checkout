@@ -27,14 +27,19 @@ class CCAvenuePlusCheckoutApi
     private $last_request = [];
 
     /**
-     * @var string The client ID used for OAuth authentication
+     * @var string The merchant ID used for OAuth authentication
      */
     private $merchant_id;
 
     /**
-     * @var string The client secret used for OAuth authentication
+     * @var string The Access code used for OAuth authentication
      */
     private $access_code;
+
+    /**
+     * @var string The working key used for OAuth authentication
+     */
+    private $working_key;
 
     /**
      * @var string The API environment, it could be live or sandbox
@@ -49,10 +54,11 @@ class CCAvenuePlusCheckoutApi
     /**
      * Initializes the request parameter
      */
-    public function __construct(string $merchant_id, string $access_code, string $environment = 'sandbox')
+    public function __construct(string $merchant_id, string $access_code, string $working_key, string $environment = 'sandbox')
     {
         $this->merchant_id = $merchant_id;
         $this->access_code = $access_code;
+        $this->working_key = $working_key;
         $this->environment = $environment;
 
         // Authenticate to CCAvenue API

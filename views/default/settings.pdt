@@ -14,6 +14,12 @@
         </li>
         <li>
             <?php
+            $this->Form->label($this->_('CCAvenuePlus.meta.working_key', true), 'working_key');
+            $this->Form->fieldText('working_key', ($meta['working_key'] ?? null), ['id' => 'working_key', 'class' => 'block']);
+            ?>
+        </li>
+        <li>
+            <?php
             $this->Form->fieldCheckbox('sandbox', 'true', (($meta['sandbox'] ?? 'false') == 'true'), ['id' => 'sandbox']);
             $this->Form->label($this->_('CCAvenuePlus.meta.sandbox', true), 'sandbox', ['class' => 'inline']);
             ?>

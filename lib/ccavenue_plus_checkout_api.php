@@ -1,18 +1,12 @@
 <?php
 use Blesta\Core\Util\Common\Traits\Container;
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'paypal_checkout_response.php';
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR . 'paypal_checkout_orders.php';
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR . 'paypal_checkout_payments.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ccavenue_plus_checkout_response.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR . 'ccavenue_plus_checkout_orders.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR . 'ccavenue_plus_checkout_payments.php';
 
 /**
- * PayPal Checkout API
- *
- * Documentation: https://developer.paypal.com/docs/api/orders/v2/
- *
- * @copyright Copyright (c) 2023, Phillips Data, Inc.
- * @license http://opensource.org/licenses/mit-license.php MIT License
- * @package paypal_checkout.commands
+ * CCAvenue Checkout API
  */
 class CCAvenuePlusCheckoutApi
 {
@@ -23,8 +17,8 @@ class CCAvenuePlusCheckoutApi
      * @var array The API URL
      */
     private $api_url = [
-        'sandbox' => 'https://api-m.sandbox.paypal.com',
-        'live' => 'https://api-m.paypal.com'
+        'sandbox' => 'https://test.ccavenue.com',
+        'live' => 'https://secure.ccavenue.com'
     ];
 
     /**
@@ -48,7 +42,7 @@ class CCAvenuePlusCheckoutApi
     private $environment;
 
     /**
-     * @var string The OAuth token returned by PayPal to be used on this instance
+     * @var string The OAuth token returned by CCAvenue to be used on this instance
      */
     private $token;
 
@@ -61,7 +55,7 @@ class CCAvenuePlusCheckoutApi
         $this->client_secret = $client_secret;
         $this->environment = $environment;
 
-        // Authenticate to PayPal API
+        // Authenticate to CCAvenue API
         $this->authenticate();
 
         // Initialize logger
@@ -70,7 +64,7 @@ class CCAvenuePlusCheckoutApi
     }
 
     /**
-     * Authenticates to the PayPal API using OAuth
+     * Authenticates to the CCAvenue API using OAuth
      *
      * @return string The OAuth token
      */

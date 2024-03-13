@@ -36,13 +36,6 @@ class CCAvenuePlusCheckoutPayments
      * Refund captured payment
      *
      * @param array $vars An array of input params including:
-     *
-     *  - capture_id The PayPal-generated ID for the captured payment to refund
-     *  - note_to_payer The reason for the refund
-     *  - amount The amount to refund
-     *  - payment_source The payment source definition
-     * @return  The response object
-     * @see https://developer.paypal.com/docs/api/payments/v2/#captures_refund
      */
     public function refund(array $vars) : CCAvenuePlusCheckoutResponse
     {
@@ -60,10 +53,6 @@ class CCAvenuePlusCheckoutPayments
      * Void an authorized payment
      *
      * @param array $vars An array of input params including:
-     *
-     *  - authorization_id The PayPal-generated ID for the captured payment to refund
-     * @return CCAvenuePlusCheckoutResponse The response object
-     * @see https://developer.paypal.com/docs/api/payments/v2/#captures_refund
      */
     public function void(array $vars) : CCAvenuePlusCheckoutResponse
     {
@@ -78,13 +67,6 @@ class CCAvenuePlusCheckoutPayments
      * Capture payment
      *
      * @param array $vars An array of input params including:
-     *
-     *  - id The PayPal-generated ID for the authorized payment to capture
-     *  - note_to_payer The reason for the payment
-     *  - amount The amount to capture
-     *  - final_capture Indicates whether you can make additional captures against the authorized payment.
-     *      Set to true if you do not intend to capture additional payments against the authorization.
-     * @return CCAvenuePlusCheckoutResponse The response object
      */
     public function capture(array $vars) : CCAvenuePlusCheckoutResponse
     {

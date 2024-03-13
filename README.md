@@ -1,6 +1,6 @@
 # CCAvenuePlus Checkout
 
-With a simple, single integration you can accept debit and credit cards, PayPal, and 10+ local payment methods.
+With a simple, single integration you can accept debit and credit cards, CCAvenue, and 10+ local payment methods.
 
 ## Install the Gateway
 

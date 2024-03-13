@@ -25,5 +25,5 @@
     </div>
     <div class="pad">
         <p><?php $this->_('CCAvenuePlus.webhook_note'); ?></p>
-        <code><?php echo Configure::get('Blesta.gw_callback_url') . Configure::get('Blesta.company_id') . '/paypal_checkout/'; ?></code>
+        <code><?php echo Configure::get('Blesta.gw_callback_url') . Configure::get('Blesta.company_id') . '/ccavenue_plus/'; ?></code>
     </div>

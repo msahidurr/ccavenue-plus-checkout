@@ -558,7 +558,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     /**
      * Loads the given API if not already loaded
      *
-     * @param string $client_id The client ID of PayPal Checkout
+     * @param string $client_id The client ID of CCAvenue Checkout
      * @param string $client_secret The client secret key
      * @param string $sandbox Whether or not to use the sandbox environment
      */
@@ -572,7 +572,7 @@ class CCAvenuePlusCheckout extends NonmerchantGateway
     /**
      * Validates if the provided API Key is valid
      *
-     * @param string $client_id The client ID of PayPal Checkout
+     * @param string $client_id The client ID of CCAvenue Checkout
      * @param string $client_secret The client secret key
      * @param string $sandbox Whether or not to use the sandbox environment
      * @return bool True if the API Key is valid, false otherwise

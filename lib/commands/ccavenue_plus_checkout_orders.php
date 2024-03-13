@@ -1,10 +1,6 @@
 <?php
 /**
- * PayPal Checkout Orders Management
- *
- * @copyright Copyright (c) 2023, Phillips Data, Inc.
- * @license http://opensource.org/licenses/mit-license.php MIT License
- * @package paypal_checkout.commands
+ * CCAvenue Checkout Orders Management
  */
 class CCAvenuePlusCheckoutOrders
 {
@@ -60,15 +56,6 @@ class CCAvenuePlusCheckoutOrders
 
     /**
      * Updates an existing order
-     *
-     * @param array $vars An array of input params including:
-     *
-     *  - id The ID of the order to update
-     *  - op The operation, it could be: replace, add or remove
-     *  - path The JSON Pointer to the target document location at which to complete the operation
-     *  - value The value to apply. The remove operation does not require a value.
-     * @return CCAvenuePlusCheckoutResponse The response object
-     * @see https://developer.paypal.com/docs/api/orders/v2/#orders_patch
      */
     public function update(array $vars) : CCAvenuePlusCheckoutResponse
     {

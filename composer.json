@@ -1,5 +1,5 @@
 {
-    "name": "blesta/ccavenue_plus",
+    "name": "blesta/ccavenue_plus_checkout",
     "description": "ccavenue plus",
     "license": "proprietary",
     "type": "blesta-gateway-nonmerchant",
@@ -10,6 +10,10 @@
         {
             "name": "msahidurr",
             "homepage": "https://msahidurr.com"
+        },
+        {
+            "name": "ArrowTan",
+            "homepage": "https://arrowtan.site"
         }
     ]
 }

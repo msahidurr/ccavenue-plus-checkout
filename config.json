@@ -1,11 +1,15 @@
 {
 	"version": "1.0.4",
-	"name": "CCAvenuePlus.name",
-	"description": "CCAvenuePlus.description",
+	"name": "CcavenuePlusCheckout.name",
+	"description": "CcavenuePlusCheckout.description",
 	"authors": [
         {
             "name": "msahidurr",
             "url": "https://msahidurr.com"
+        },
+        {
+            "name": "ArrowTan",
+            "url": "https://arrowtan.site"
         }
     ],
 	"currencies": ["EUR", "GBP", "INR", "SGD", "USD"],

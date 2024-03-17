@@ -7,16 +7,16 @@ With a simple, single integration you can accept debit and credit cards, CCAvenu
 1. You can install the gateway via composer:
 
     ```
-    composer require blesta/ccavenue_plus
+    composer require blesta/ccavenue_plus_checkout
     ```
 
-2. OR upload the source code to a /components/gateways/nonmerchant/ccavenue_plus/ directory within
+2. OR upload the source code to a /components/gateways/nonmerchant/ccavenue_plus_checkout/ directory within
 your Blesta installation path.
 
     For example:
 
     ```
-    /var/www/html/blesta/components/gateways/nonmerchant/ccavenue_plus/
+    /var/www/html/blesta/components/gateways/nonmerchant/ccavenue_plus_checkout/
     ```
 
 3. Log in to your admin Blesta account and navigate to

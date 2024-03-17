@@ -2,34 +2,34 @@
     <ul>
         <li>
             <?php
-            $this->Form->label($this->_('CCAvenuePlus.meta.merchant_id', true), 'merchant_id');
+            $this->Form->label($this->_('CcavenuePlusCheckout.meta.merchant_id', true), 'merchant_id');
             $this->Form->fieldText('merchant_id', ($meta['merchant_id'] ?? null), ['id' => 'merchant_id', 'class' => 'block']);
             ?>
         </li>
         <li>
             <?php
-            $this->Form->label($this->_('CCAvenuePlus.meta.access_code', true), 'access_code');
+            $this->Form->label($this->_('CcavenuePlusCheckout.meta.access_code', true), 'access_code');
             $this->Form->fieldText('access_code', ($meta['access_code'] ?? null), ['id' => 'access_code', 'class' => 'block']);
             ?>
         </li>
         <li>
             <?php
-            $this->Form->label($this->_('CCAvenuePlus.meta.working_key', true), 'working_key');
+            $this->Form->label($this->_('CcavenuePlusCheckout.meta.working_key', true), 'working_key');
             $this->Form->fieldText('working_key', ($meta['working_key'] ?? null), ['id' => 'working_key', 'class' => 'block']);
             ?>
         </li>
         <li>
             <?php
             $this->Form->fieldCheckbox('sandbox', 'true', (($meta['sandbox'] ?? 'false') == 'true'), ['id' => 'sandbox']);
-            $this->Form->label($this->_('CCAvenuePlus.meta.sandbox', true), 'sandbox', ['class' => 'inline']);
+            $this->Form->label($this->_('CcavenuePlusCheckout.meta.sandbox', true), 'sandbox', ['class' => 'inline']);
             ?>
         </li>
     </ul>
 
     <div class="title_row">
-        <h3><?php $this->_('CCAvenuePlus.webhook'); ?></h3>
+        <h3><?php $this->_('CcavenuePlusCheckout.webhook'); ?></h3>
     </div>
     <div class="pad">
-        <p><?php $this->_('CCAvenuePlus.webhook_note'); ?></p>
-        <code><?php echo Configure::get('Blesta.gw_callback_url') . Configure::get('Blesta.company_id') . '/ccavenue_plus/'; ?></code>
+        <p><?php $this->_('CcavenuePlusCheckout.webhook_note'); ?></p>
+        <code><?php echo Configure::get('Blesta.gw_callback_url') . Configure::get('Blesta.company_id') . '/ccavenue_plus_checkout/'; ?></code>
     </div>

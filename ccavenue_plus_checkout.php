@@ -80,21 +80,21 @@ class CcavenuePlusCheckout extends NonmerchantGateway
             'merchant_id' => [
                 'valid' => [
                     'rule' => [[$this, 'validateConnection'], $meta['access_code'], $meta['sandbox']],
-                    'message' => Language::_('CCAvenuePlus.!error.merchant_id.valid', true)
+                    'message' => Language::_('CcavenuePlusCheckout.!error.merchant_id.valid', true)
                 ]
             ],
             'access_code' => [
                 'valid' => [
                     'rule' => 'isEmpty',
                     'negate' => true,
-                    'message' => Language::_('CCAvenuePlus.!error.access_code.valid', true)
+                    'message' => Language::_('CcavenuePlusCheckout.!error.access_code.valid', true)
                 ]
             ],
             'working_key' => [
                 'valid' => [
                     'rule' => 'isEmpty',
                     'negate' => true,
-                    'message' => Language::_('CCAvenuePlus.!error.working_key.valid', true)
+                    'message' => Language::_('CcavenuePlusCheckout.!error.working_key.valid', true)
                 ]
             ],
         ];
@@ -269,7 +269,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
         $events = ['CHECKOUT.ORDER.APPROVED', 'PAYMENT.CAPTURE.COMPLETED'];
         if (!in_array($webhook->event_type ?? '', $events)) {
             $this->Input->setErrors([
-                'event' => ['unsupported' => Language::_('CCAvenuePlus.!error.event.unsupported', true)]
+                'event' => ['unsupported' => Language::_('CcavenuePlusCheckout.!error.event.unsupported', true)]
             ]);
             return;
         }
@@ -319,7 +319,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
 
         if (empty($transaction)) {
             $this->Input->setErrors([
-                'transaction' => ['missing' => Language::_('CCAvenuePlus.!error.transaction.missing', true)]
+                'transaction' => ['missing' => Language::_('CcavenuePlusCheckout.!error.transaction.missing', true)]
             ]);
             return;
         }

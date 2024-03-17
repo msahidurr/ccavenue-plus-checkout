@@ -94,7 +94,7 @@ class CCAvenuePlusCheckoutApi
     }
 
     /**
-     * Send an API request to CCAvenuePlus
+     * Send an API request to CcavenuePlusCheckout
      *
      * @param string $route The path to the API method
      * @param array $body The data to be sent

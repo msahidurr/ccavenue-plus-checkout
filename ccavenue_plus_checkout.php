@@ -4,7 +4,7 @@
  *
  * Allows users to pay via CCAvenue and 10+ local payment methods
  */
-class CCAvenuePlusCheckout extends NonmerchantGateway
+class CcavenuePlusCheckout extends NonmerchantGateway
 {
     /**
      * @var array An array of meta data for this gateway

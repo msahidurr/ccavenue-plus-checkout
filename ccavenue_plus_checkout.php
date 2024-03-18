@@ -170,69 +170,35 @@ class CcavenuePlusCheckout extends NonmerchantGateway
     {
         // Force 2-decimal places only
         $amount = round($amount, 2);
-        if (isset($options['recur']['amount'])) {
-            $options['recur']['amount'] = round($options['recur']['amount'], 2);
+        
+        $formData = $this->formData($contact_info, $invoice_amounts);
+
+        $formData['amount'] = $amount;
+
+        $merchant_data = http_build_query($formData);
+
+        $post_to = '';
+
+        if($this->meta['test_mode'] == 'true') {
+            $post_to = 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
+        } else {
+            $post_to = 'https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
         }
 
-        // Remove decimals on unsupported currencies
-        if (in_array($this->currency, ['HUF', 'JPY', 'TWD'])) {
-            $amount = round($amount, 0);
-            if (isset($options['recur']['amount'])) {
-                $options['recur']['amount'] = round($options['recur']['amount'], 0);
-            }
-        }
+        // Load the helpers required for this view
+        Loader::loadHelpers($this, ['Form', 'Html']);
 
         $this->view = $this->makeView('process', 'default', str_replace(ROOTWEBDIR, '', dirname(__FILE__) . DS));
 
-        // Load the models and helpers required for this view
-        Loader::loadModels($this, ['Companies']);
-        Loader::loadHelpers($this, ['Form', 'Html']);
-
-        // Get company information
-        $company = $this->Companies->get(Configure::get('Blesta.company_id'));
-
-        // Initialize API
-        $api = $this->getApi($this->meta['merchant_id'], $this->meta['access_code'], $this->meta['sandbox']);
-        $orders = new CCAvenuePlusCheckoutOrders($api);
-
-        // Generate order
-        $params = [
-            'purchase_units' => [
-                [
-                    'description' => $options['description'] ?? '',
-                    'soft_descriptor' => substr(preg_replace('/[^a-z1-9\ \-\*\.]/i', '', $company->name ?? ''), 0, 22),
-                    'amount' => [
-                        'currency_code' => $this->currency,
-                        'value' => $amount
-                    ],
-                    'reference_id' => $this->serializeInvoices($invoice_amounts),
-                    'custom_id' => $contact_info['merchant_id'] ?? null
-                ]
-
-            ],
-            'intent' => 'CAPTURE',
-            'application_context' => [
-                'return_url' => $options['return_url'] ?? null,
-                'cancel_url' => $options['return_url'] ?? null
-            ]
-        ];
-        $order = $orders->create($params);
-        $response = $order->response();
-
-        $this->log('buildProcess', json_encode($params), 'input', true);
-        $this->log('buildProcess', json_encode($response), 'output', empty($order->errors()));
-
-        // Get payment url
-        $post_to = '#';
-        foreach ($response->links as $link) {
-            if ($link->rel == 'approve') {
-                $post_to = $link->href;
-            }
-        }
-
-        $this->view->set('merchant_id', $this->meta['merchant_id']);
         $this->view->set('post_to', $post_to);
 
+        // Method for encrypting the data.
+        $encRequest = $this->clients->systemEncrypt($merchant_data, $this->meta['encryption_key'] ?? '');
+        $this->view->set('encRequest', $encRequest);
+        $this->view->set('access_code', (isset($this->meta['access_code']) ? $this->meta['access_code'] : null));
+        $this->view->set('merchant_id', (isset($Merchant_Id) ? $Merchant_Id : null));
+
+        // Log request received
         return $this->view->fetch();
     }
 
@@ -257,112 +223,11 @@ class CcavenuePlusCheckout extends NonmerchantGateway
      */
     public function validate(array $get, array $post)
     {
-        // Initialize API
-        $api = $this->getApi($this->meta['merchant_id'], $this->meta['access_code'], $this->meta['sandbox']);
-        $payments = new CCAvenuePlusCheckoutPayments($api);
-
-        // Fetch webhook payload
-        $payload = file_get_contents('php://input');
-        $webhook = json_decode($payload);
-
-        // Discard all webhook events, except when the order is completed or approved
-        $events = ['CHECKOUT.ORDER.APPROVED', 'PAYMENT.CAPTURE.COMPLETED'];
-        if (!in_array($webhook->event_type ?? '', $events)) {
-            $this->Input->setErrors([
-                'event' => ['unsupported' => Language::_('CcavenuePlusCheckout.!error.event.unsupported', true)]
-            ]);
-            return;
-        }
-
-        $this->log('validate', json_encode($webhook), 'input', !empty($webhook));
-
-        // Capture payment
-        if ($webhook->event_type == 'CHECKOUT.ORDER.APPROVED') {
-            $orders = new CCAvenuePlusCheckoutOrders($api);
-            $response = $orders->capture(['id' => $webhook->resource->id]);
-
-            $this->log('capture', json_encode($response->response()), 'output', empty($response->errors()));
-
-            // Output errors
-            if (($errors = $response->errors())) {
-                $this->Input->setErrors($errors);
-                return;
-            }
-
-            return [
-                'merchant_id' => $webhook->resource->purchase_units[0]->custom_id ?? null,
-                'amount' => $webhook->resource->purchase_units[0]->amount->value ?? null,
-                'currency' => $webhook->resource->purchase_units[0]->amount->currency_code ?? null,
-                'invoices' => $this->unserializeInvoices($webhook->resource->purchase_units[0]->reference_id ?? ''),
-                'status' => 'pending',
-                'reference_id' => null,
-                'transaction_id' => $webhook->resource->id ?? null,
-                'parent_transaction_id' => null
-            ];
-        }
-
-        // Set the payment
-        $payment = $webhook->resource ?? (object) [];
-
-        // Fetch the transaction
-        $order_response = (object) [];
-        $order = (object) [];
-        $transaction = (object) [];
-        if (isset($payment->supplementary_data->related_ids->order_id)) {
-            $orders = new CCAvenuePlusCheckoutOrders($api);
-            $order_response = $orders->get(['id' => $payment->supplementary_data->related_ids->order_id]) ?? (object) [];
-            $order = $order_response->response();
-            $transaction = $order->purchase_units[0] ?? (object) [];
-        }
-
-        $this->log('validate', json_encode($transaction), 'output', !empty($transaction));
-
-        if (empty($transaction)) {
-            $this->Input->setErrors([
-                'transaction' => ['missing' => Language::_('CcavenuePlusCheckout.!error.transaction.missing', true)]
-            ]);
-            return;
-        }
-
-        // Set status
-        $status = 'error';
-        $success = false;
-        switch ($payment->status ?? 'ERROR') {
-            case 'COMPLETED':
-                $status = 'approved';
-                $success = true;
-                break;
-            case 'APPROVED':
-                $status = 'pending';
-                $success = true;
-                break;
-            case 'VOIDED':
-                $status = 'void';
-                $success = true;
-                break;
-        }
-
-        if (!$success) {
-            $this->Input->setErrors($this->getCommonError('general'));
-            return;
-        }
-
-        // Output errors
-        if (($errors = $order_response->errors())) {
-            $this->Input->setErrors($errors);
-            return;
-        }
-
-        return [
-            'merchant_id' => $transaction->custom_id ?? null,
-            'amount' => $payment->amount->value ?? null,
-            'currency' => $payment->amount->currency_code ?? null,
-            'invoices' => $this->unserializeInvoices($transaction->reference_id ?? ''),
-            'status' => $status,
-            'reference_id' => $payment->id ?? null,
-            'transaction_id' => $order->id ?? null,
-            'parent_transaction_id' => null
-        ];
+        echo "validate";
+        print_r("<pre>");
+        print_r($get);
+        print_r("post: ");
+        print_r($post); die();        
     }
 
     /**
@@ -384,143 +249,11 @@ class CcavenuePlusCheckout extends NonmerchantGateway
      */
     public function success(array $get, array $post)
     {
-        // Initialize API
-        $api = $this->getApi($this->meta['merchant_id'], $this->meta['access_code'], $this->meta['sandbox']);
-        $orders = new CCAvenuePlusCheckoutOrders($api);
-
-        $this->log('success', json_encode($get), 'output', !empty($get));
-
-        // Fetch the order, if a token is provided
-        if (!empty($get['token'])) {
-            $order = $orders->get(['id' => $get['token']]);
-            $response = $order->response();
-        }
-
-        // Set transaction
-        $transaction = (object) [];
-        if (!empty($response->purchase_units)) {
-            $transaction = $response->purchase_units[0] ?? (object) [];
-        }
-
-        $params = [
-            'merchant_id' => $transaction->custom_id ?? null,
-            'amount' => $transaction->amount->value ?? null,
-            'currency' => $transaction->amount->currency_code ?? null,
-            'invoices' => $this->unserializeInvoices($transaction->reference_id ?? ''),
-            'status' => 'approved',
-            'transaction_id' => $get['token'] ?? null,
-            'parent_transaction_id' => null
-        ];
-
-        return $params;
-    }
-
-    /**
-     * Refund a payment
-     *
-     * @param string $reference_id The reference ID for the previously submitted transaction
-     * @param string $transaction_id The transaction ID for the previously submitted transaction
-     * @param float $amount The amount to refund this transaction
-     * @param string $notes Notes about the refund that may be sent to the client by the gateway
-     * @return array An array of transaction data including:
-     *  - status The status of the transaction (approved, declined, void, pending, reconciled, refunded, returned)
-     *  - reference_id The reference ID for gateway-only use with this transaction (optional)
-     *  - transaction_id The ID returned by the remote gateway to identify this transaction
-     *  - message The message to be displayed in the interface in addition to the standard
-     *      message for this transaction status (optional)
-     */
-    public function refund($reference_id, $transaction_id, $amount, $notes = null)
-    {
-        // Initialize API
-        $api = $this->getApi($this->meta['merchant_id'], $this->meta['access_code'], $this->meta['sandbox']);
-        $payments = new CCAvenuePlusCheckoutPayments($api);
-
-        $this->log('getpayment', json_encode(compact('reference_id', 'transaction_id')), 'input', !empty($get));
-
-        // Fetch the payment
-        $payment = $payments->get(['id' => $reference_id]);
-        $response = $payment->response();
-        $this->log('getpayment', json_encode($response), 'output', empty($payment->errors() ?? []));
-
-        if (empty($response) || !isset($response->status)) {
-            $this->Input->setErrors($this->getCommonError('general'));
-            return;
-        }
-
-        // Attempt a refund
-        try {
-            $params = [
-                'capture_id' => $reference_id,
-                'amount' => (object)['value' => $amount, 'currency_code' => $response->amount->currency_code]
-            ];
-            $this->log('refund', json_encode($params), 'input', true);
-            $refund = $payments->refund($params);
-            $this->log('refund', $refund->raw(), 'output', $refund->status() == '200');
-        } catch (Throwable $e) {
-            $this->Input->setErrors(['internal' => ['internal' => $e->getMessage()]]);
-            return;
-        }
-
-        // Output errors
-        if (($errors = $refund->errors())) {
-            $this->Input->setErrors(['internal' => $errors]);
-            return;
-        }
-
-        return [
-            'status' => 'refunded',
-            'transaction_id' => $transaction_id
-        ];
-    }
-
-    /**
-     * Void a payment or authorization.
-     *
-     * @param string $reference_id The reference ID for the previously submitted transaction
-     * @param string $transaction_id The transaction ID for the previously submitted transaction
-     * @param string $notes Notes about the void that may be sent to the client by the gateway
-     * @return array An array of transaction data including:
-     *  - status The status of the transaction (approved, declined, void, pending, reconciled, refunded, returned)
-     *  - reference_id The reference ID for gateway-only use with this transaction (optional)
-     *  - transaction_id The ID returned by the remote gateway to identify this transaction
-     *  - message The message to be displayed in the interface in addition to the standard
-     *      message for this transaction status (optional)
-     */
-    public function void($reference_id, $transaction_id, $notes = null)
-    {
-        // Initialize API
-        $api = $this->getApi($this->meta['merchant_id'], $this->meta['access_code'], $this->meta['sandbox']);
-        $payments = new CCAvenuePlusCheckoutPayments($api);
-
-        $this->log('void', json_encode(compact('reference_id', 'transaction_id')), 'output', !empty($get));
-
-        // Fetch the payment
-        $payment = $payments->get(['id' => $reference_id]);
-        $response = $payment->response();
-
-        if (empty($response) || !isset($response->status)) {
-            $this->Input->setErrors($this->getCommonError('general'));
-            return;
-        }
-
-        // Attempt void
-        try {
-            $void = $payments->void(['capture_id' => $reference_id]);
-            $this->log('void', $void->raw(), 'output', $void->status() == '200');
-        } catch (Throwable $e) {
-            return;
-        }
-
-        // Output errors
-        if (($errors = $void->errors())) {
-            $this->Input->setErrors(['internal' => $errors]);
-            return;
-        }
-
-        return [
-            'status' => 'void',
-            'transaction_id' => $transaction_id
-        ];
+        echo "success";
+        print_r("<pre>");
+        print_r($get);
+        print_r("post: ");
+        print_r($post); die();
     }
 
     /**
@@ -569,49 +302,88 @@ class CcavenuePlusCheckout extends NonmerchantGateway
      * @param string $access_code The client secret key
      * @param string $sandbox Whether or not to use the sandbox environment
      */
-    private function getApi(string $merchant_id, string $access_code, string $working_key, $sandbox = 'false')
+    private function formData( array $contact_info, array $invoice_amounts = null)
     {
-        $environment = ($sandbox == 'false' ? 'live' : 'sandbox');
+        $client = $this->Clients->get($contact_info['client_id']);
 
-        return new CCAvenuePlusCheckoutApi($merchant_id, $access_code, $working_key, $environment);
+        $order_id = '';
+
+        if(isset($contact_info['client_id'])) {
+            $order_id = $contact_info['client_id'] . '-' . time();
+        } else {
+            $order_id =  time();
+        }
+
+        $redirect_url = Configure::get('Blesta.gw_callback_url')
+            . Configure::get('Blesta.company_id') . '/ccavenue_plus_checkout/'
+            . (isset($contact_info['client_id']) ? $contact_info['client_id'] : null);
+
+        return [
+            'merchant_id' => $this->meta['merchant_id'] ?? '',
+            'currency' => $this->currency,
+            'order_id' => $order_id,
+            'redirect_url' => $redirect_url,
+            'billing_name' => (
+                (isset($contact_info['first_name']) ? $contact_info['first_name'] : null) .' '.  (isset($contact_info['last_name']) ? $contact_info['last_name'] : null)
+            ),
+            'billing_address' => (
+                (isset($contact_info['address1']) ? $contact_info['address1'] : null) . ' ' . (isset($contact_info['address2']) ? $contact_info['address2'] : null)
+            ),
+            'billing_city' =>  (isset($contact_info['city']) ? $contact_info['city'] : null),
+            'billing_state' => (isset($contact_info['state']['name']) ? $contact_info['state']['name'] : null),
+            'billing_zip' => (isset($contact_info['zip']) ? $contact_info['zip'] : null),
+            'billing_country' => trim((isset($contact_info['country']['name']) ? $contact_info['country']['name'] : null)),
+            'billing_tel' => ($this->getContact($client)),
+            'billing_email' => (isset($client->email) ? $client->email : null),
+            'delivery_name' => (
+                (isset($contact_info['first_name']) ? $contact_info['first_name'] : null) .' '.  (isset($contact_info['last_name']) ? $contact_info['last_name'] : null)
+            ),
+            'delivery_address' => (
+                (isset($contact_info['address1']) ? $contact_info['address1'] : null) . ' ' . (isset($contact_info['address2']) ? $contact_info['address2'] : null)
+            ),
+            'delivery_city' => (isset($contact_info['city']) ? $contact_info['city'] : null),
+            'delivery_state' => (isset($contact_info['state']['name']) ? $contact_info['state']['name'] : null),
+            'delivery_zip' => (isset($contact_info['zip']) ? $contact_info['zip'] : null),
+            'delivery_country' => trim((isset($contact_info['country']['name']) ? $contact_info['country']['name'] : null)),
+            'delivery_tel' => ($this->getContact($client)),
+            'merchant_param1' =>  $this->serializeInvoices($invoice_amounts),
+            'merchant_param2' => (isset($client->id) ? $client->id : null)
+        ];
     }
 
-    /**
-     * Validates if the provided API Key is valid
-     *
-     * @param string $merchant_id The client ID of CCAvenue Checkout
-     * @param string $access_code The client secret key
-     * @param string $sandbox Whether or not to use the sandbox environment
-     * @return bool True if the API Key is valid, false otherwise
-     */
-    public function validateConnection($merchant_id, $access_code, $sandbox = 'false')
+    private function getContact($client)
     {
-        try {
-            // Initialize API
-            $api = $this->getApi($merchant_id, $access_code, $sandbox);
-            $orders = new CCAvenuePlusCheckoutOrders($api);
+        // Get any phone/fax numbers
+        $contact_numbers = $this->Contacts->getNumbers($client->contact_id);
 
-            $params = [
-                'purchase_units' => [
-                    [
-                        'description' => 'Blesta',
-                        'soft_descriptor' => 'Blesta',
-                        'amount' => [
-                            'currency_code' => 'USD',
-                            'value' => '0.99'
-                        ]
-                    ]
-                ],
-                'intent' => 'AUTHORIZE'
-            ];
-            $order = $orders->create($params);
-            $response = $order->response();
-
-            return !empty($response->links);
-        } catch (Throwable $e) {
-            $this->Input->setErrors(['create' => ['response' => $e->getMessage()]]);
-
-            return false;
+        // Set any contact numbers (only the first of a specific type found)
+        $data = '';
+        foreach ($contact_numbers as $contact_number) {
+            switch ($contact_number->location) {
+                case 'home':
+                    // Set home phone number
+                    if ($contact_number->type == 'phone') {
+                        $data = $contact_number->number;
+                    }
+                    break;
+                case 'work':
+                    // Set work phone/fax number
+                    if ($contact_number->type == 'phone') {
+                        $data['office_tel'] = $contact_number->number;
+                    }
+                    // No break?
+                case 'mobile':
+                    // Set mobile phone number
+                    if ($contact_number->type == 'phone') {
+                        $data = $contact_number->number;
+                    }
+                    break;
+            }
         }
+        if (trim($data)=='') {
+            return '';
+        }
+        
+        return preg_replace('/[^0-9]/', '', $data);
     }
 }

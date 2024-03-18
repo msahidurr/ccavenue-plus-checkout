@@ -17,8 +17,8 @@ class CCAvenuePlusCheckoutApi
      * @var array The API URL
      */
     private $api_url = [
-        'sandbox' => 'https://test.ccavenue.com',
-        'live' => 'https://secure.ccavenue.com'
+        'sandbox' => 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction',
+        'live' => 'https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction'
     ];
 
     /**
@@ -60,9 +60,6 @@ class CCAvenuePlusCheckoutApi
         $this->access_code = $access_code;
         $this->working_key = $working_key;
         $this->environment = $environment;
-
-        // Authenticate to CCAvenue API
-        $this->authenticate();
 
         // Initialize logger
         $logger = $this->getFromContainer('logger');

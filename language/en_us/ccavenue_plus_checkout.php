@@ -23,3 +23,5 @@ $lang['CcavenuePlusCheckout.meta.sandbox'] = 'Sandbox';
 
 $lang['CcavenuePlusCheckout.webhook'] = 'CcavenuePlusCheckout Webhook';
 $lang['CcavenuePlusCheckout.webhook_note'] = 'Before you start using this gateway you must configure the following url as a Webhook in your CcavenuePlusCheckout account.';
+
+$lang['CcavenuePlusCheckout.buildprocess.submit'] = 'Pay via CCAvenue';

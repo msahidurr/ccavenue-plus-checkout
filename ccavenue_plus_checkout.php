@@ -1,4 +1,8 @@
 <?php
+
+Configure::errorReporting(E_ALL);
+Configure::errorReporting(0);
+Configure::errorReporting(-1);
 /**
  * CCAvenue Checkout Gateway
  *
@@ -17,7 +21,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
     public function __construct()
     {
         // Load the CCAvenue Checkout API
-        Loader::load(dirname(__FILE__) . DS . 'lib' . DS . 'ccavenue_plus_checkout_api.php');
+        // Loader::load(dirname(__FILE__) . DS . 'lib' . DS . 'ccavenue_plus_checkout_api.php');
 
         // Load configuration required by this gateway
         $this->loadConfig(dirname(__FILE__) . DS . 'config.json');
@@ -79,7 +83,8 @@ class CcavenuePlusCheckout extends NonmerchantGateway
         $rules = [
             'merchant_id' => [
                 'valid' => [
-                    'rule' => [[$this, 'validateConnection'], $meta['access_code'], $meta['sandbox']],
+                    'rule' => 'isEmpty',
+                    'negate' => true,
                     'message' => Language::_('CcavenuePlusCheckout.!error.merchant_id.valid', true)
                 ]
             ],
@@ -98,6 +103,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
                 ]
             ],
         ];
+
         $this->Input->setRules($rules);
 
         // Validate the given meta data to ensure it meets the requirements
@@ -227,7 +233,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
         print_r("<pre>");
         print_r($get);
         print_r("post: ");
-        print_r($post); die();        
+        // print_r($post); die();        
     }
 
     /**

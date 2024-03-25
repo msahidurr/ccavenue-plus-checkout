@@ -29,6 +29,8 @@ class CcavenuePlusCheckout extends NonmerchantGateway
         // Load components required by this gateway
         Loader::loadComponents($this, ['Input']);
 
+        Loader::loadModels($this, ['Clients', 'Contacts', 'Companies']);
+
         // Load the language required by this gateway
         Language::loadLang('ccavenue_plus_checkout', null, dirname(__FILE__) . DS . 'language' . DS);
     }
@@ -185,7 +187,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
 
         $post_to = '';
 
-        if($this->meta['test_mode'] == 'true') {
+        if($this->meta['sandbox'] == 'true') {
             $post_to = 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
         } else {
             $post_to = 'https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
@@ -199,7 +201,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
         $this->view->set('post_to', $post_to);
 
         // Method for encrypting the data.
-        $encRequest = $this->clients->systemEncrypt($merchant_data, $this->meta['encryption_key'] ?? '');
+        $encRequest = $this->Clients->systemEncrypt($merchant_data, $this->meta['encryption_key'] ?? '');
         $this->view->set('encRequest', $encRequest);
         $this->view->set('access_code', (isset($this->meta['access_code']) ? $this->meta['access_code'] : null));
         $this->view->set('merchant_id', (isset($Merchant_Id) ? $Merchant_Id : null));
@@ -375,7 +377,7 @@ class CcavenuePlusCheckout extends NonmerchantGateway
                 case 'work':
                     // Set work phone/fax number
                     if ($contact_number->type == 'phone') {
-                        $data['office_tel'] = $contact_number->number;
+                        $data = $contact_number->number;
                     }
                     // No break?
                 case 'mobile':
@@ -385,9 +387,6 @@ class CcavenuePlusCheckout extends NonmerchantGateway
                     }
                     break;
             }
-        }
-        if (trim($data)=='') {
-            return '';
         }
         
         return preg_replace('/[^0-9]/', '', $data);
